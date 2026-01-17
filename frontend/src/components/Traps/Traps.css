@@ -1,0 +1,161 @@
+/* Trap Card */
+.trap-card {
+    background-color: var(--bg-card);
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 1.5rem;
+    text-align: center;
+    transition: all 0.3s;
+    width: 100%;
+    max-width: 400px;
+}
+
+.trap-card.active {
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 15px rgba(68, 136, 255, 0.2);
+}
+
+.trap-card.passed {
+    border-color: var(--accent-green);
+    background-color: rgba(0, 255, 136, 0.05);
+}
+
+.trap-card.failed {
+    border-color: var(--accent-red);
+    background-color: rgba(255, 68, 68, 0.05);
+}
+
+.trap-title {
+    font-size: 1.25rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+    text-transform: capitalize;
+}
+
+.trap-instructions {
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+}
+
+/* Metric Chart */
+.metric-chart-container {
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    padding: 0.5rem;
+    margin-top: 1rem;
+}
+
+.metric-label {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.25rem;
+    display: block;
+    text-align: left;
+}
+
+.chart-svg {
+    width: 100%;
+    height: 60px;
+    overflow: visible;
+}
+
+.chart-line {
+    fill: none;
+    stroke: var(--accent-blue);
+    stroke-width: 2;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+}
+
+.chart-area {
+    fill: rgba(68, 136, 255, 0.1);
+    stroke: none;
+}
+
+.threshold-line {
+    stroke: var(--accent-red);
+    stroke-dasharray: 4, 4;
+    stroke-width: 1;
+}
+
+.chart-value {
+    fill: var(--text-primary);
+    font-size: 12px;
+    font-weight: bold;
+}
+
+/* Trap Manager */
+.trap-manager-waiting {
+    color: var(--text-secondary);
+    text-align: center;
+    padding: 1rem;
+}
+
+.trap-manager-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.trap-visuals {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.disco-bar-bg {
+    width: 100%;
+    height: 8px;
+    background-color: #333;
+    border-radius: 4px;
+    margin-top: 4px;
+    overflow: hidden;
+}
+
+.disco-bar-fill {
+    height: 100%;
+    background-color: var(--accent-purple);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+/* Disco Flash */
+.disco-flash-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 40;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.2s;
+    pointer-events: none;
+}
+
+.disco-message {
+    font-size: 3rem;
+    font-weight: 900;
+    color: white;
+    text-shadow: 0 0 10px rgba(0,0,0,0.8);
+    margin-bottom: 2rem;
+}
+
+.disco-progress-container {
+    width: 60%;
+    height: 10px;
+    background-color: rgba(0,0,0,0.5);
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.disco-progress-bar {
+    height: 100%;
+    transition: width 0.1s linear;
+}

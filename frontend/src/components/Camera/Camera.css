@@ -1,0 +1,116 @@
+.video-feed-container {
+    position: relative;
+    width: 100%;
+    max-width: 1280px;
+    aspect-ratio: 16 / 9;
+    background-color: #000;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    margin: 0 auto;
+}
+
+.video-feed-msg {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+}
+
+.video-element {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scaleX(-1);
+}
+
+.hidden-canvas {
+    display: none;
+}
+
+.overlay-container {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+/* Camera Selector */
+.camera-selector {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: var(--bg-secondary);
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+}
+
+.camera-label {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.camera-select {
+    background-color: var(--bg-card);
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    border-radius: 0.25rem;
+    border: 1px solid #333;
+    padding: 0.25rem 0.75rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.camera-select:focus {
+    border-color: var(--accent-blue);
+}
+
+/* Quality Banner */
+.quality-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: 0.5rem;
+    transition: all 0.3s;
+    border: 1px solid transparent;
+}
+
+.quality-banner.ok {
+    background-color: rgba(0, 255, 136, 0.1);
+    color: var(--accent-green);
+    border-color: rgba(0, 255, 136, 0.2);
+}
+
+.quality-banner.warning {
+    background-color: rgba(255, 68, 68, 0.1);
+    color: var(--accent-red);
+    border-color: rgba(255, 68, 68, 0.2);
+    animation: pulse 2s infinite;
+}
+
+.metrics-group {
+    display: flex;
+    gap: 1rem;
+}
+
+.metric-bad {
+    color: var(--accent-red);
+    font-weight: bold;
+}
+
+.status-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.icon {
+    font-size: 1rem;
+    /* Basic material icon fallback if font not loaded, or use text */
+}
