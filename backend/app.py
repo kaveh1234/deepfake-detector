@@ -312,7 +312,8 @@ async def get_session(session_id: str):
 
 # Serve static files for frontend
 import os
-frontend_path = os.path.join(os.path.dirname(__file__), "..", "frontend", "dist")
+frontend_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "frontend", "dist"))
+
 if os.path.exists(frontend_path):
     app.mount("/assets", StaticFiles(directory=os.path.join(frontend_path, "assets")), name="assets")
 
