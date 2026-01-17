@@ -30,6 +30,7 @@ export interface TrapResult {
     threshold: number;
     penalty: number;
     message: string;
+    edge_map_b64?: string;  // Edge visualization for squint trap
 }
 
 export interface CalibrationData {

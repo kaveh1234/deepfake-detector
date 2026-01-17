@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -m uvicorn:*)",
+      "Bash(npm run dev:*)",
+      "Bash(npm install)",
+      "Bash(curl:*)",
+      "Bash(python:*)"
+    ]
+  }
+}

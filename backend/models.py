@@ -62,6 +62,7 @@ class TrapResult(BaseModel):
     threshold: float
     penalty: int
     message: str
+    edge_map_b64: Optional[str] = None  # Base64 edge visualization for squint trap
 
 
 class LiveMetrics(BaseModel):

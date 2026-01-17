@@ -133,6 +133,15 @@ export function useWebSocket(): UseWebSocketReturn {
 
     const control = useCallback((action: string, data: any = {}) => {
         if (socketRef.current?.readyState === WebSocket.OPEN) {
+            // Clear local state on reset
+            if (action === 'reset_session') {
+                setMetrics(null);
+                setTrapResult(null);
+                setCalibration(null);
+                setSessionInfo(null);
+                setError(null);
+            }
+
             socketRef.current.send(
                 JSON.stringify({
                     type: 'control',

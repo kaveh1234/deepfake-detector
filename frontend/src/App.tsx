@@ -58,15 +58,14 @@ function App() {
       <main className="app-main">
         <div className="camera-section">
           <QualityBanner fps={game.fps} resolution={game.resolution} />
-          <VideoFeed 
+          <VideoFeed
              videoRef={game.videoRef}
              canvasRef={game.canvasRef}
              isStreaming={game.isStreaming}
              stream={null}
              faceDetected={metrics?.face_detected}
-             discoActive={currentTrap === 'disco'}
-             // Cast to expected type if metrics has generic string, or assume valid
-             discoPhase={(metrics as any)?.disco_phase || 'red'}
+             discoActive={game.isDiscoActive}
+             discoPhase={game.discoPhase}
           />
         </div>
 

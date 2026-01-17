@@ -2,6 +2,7 @@
 
 import cv2
 import numpy as np
+import base64
 from dataclasses import dataclass
 from typing import Optional
 from collections import deque
@@ -179,11 +180,14 @@ class SquintTrap:
     def __init__(self):
         self.edge_history = deque(maxlen=30)
         self.max_edge_count = 0
+        self.last_nose_roi: Optional[np.ndarray] = None  # Store for edge map
 
     def compute_edge_count(self, nose_roi: np.ndarray) -> float:
         """Compute edge count using Canny edge detection."""
         if nose_roi.size == 0:
             return 0.0
+
+        self.last_nose_roi = nose_roi.copy()  # Store for visualization
 
         gray = cv2.cvtColor(nose_roi, cv2.COLOR_BGR2GRAY)
         edges = cv2.Canny(gray, self.CANNY_LOW, self.CANNY_HIGH)
@@ -209,6 +213,13 @@ class SquintTrap:
         Pass: E_squint >= E0 * 1.35
         Fail: E_squint < E0 * 1.15
         """
+        # Generate edge map visualization
+        edge_map_b64 = None
+        if self.last_nose_roi is not None and self.last_nose_roi.size > 0:
+            edges = self.get_edge_visualization(self.last_nose_roi)
+            _, buffer = cv2.imencode('.png', edges)
+            edge_map_b64 = base64.b64encode(buffer).decode('utf-8')
+
         if baseline_edge_count == 0:
             return TrapResult(
                 trap_type=TrapType.SQUINT,
@@ -217,7 +228,8 @@ class SquintTrap:
                 baseline=0.0,
                 threshold=0.0,
                 penalty=self.PENALTY,
-                message="No baseline edge count available"
+                message="No baseline edge count available",
+                edge_map_b64=edge_map_b64
             )
 
         e_squint = self.max_edge_count
@@ -239,13 +251,15 @@ class SquintTrap:
             message=(
                 f"Edge increase: {edge_multiplier:.2f}x "
                 f"(E0={baseline_edge_count:.0f} -> E={e_squint:.0f})"
-            )
+            ),
+            edge_map_b64=edge_map_b64
         )
 
     def reset(self):
         """Reset trap state."""
         self.edge_history.clear()
         self.max_edge_count = 0
+        self.last_nose_roi = None
 
 
 class DiscoTrap:
@@ -459,6 +473,11 @@ class TrapRunner:
                 variance,
                 self.calibration.laplacian_variance
             )
+            # Apply -1 life penalty when smoothness gate fails
+            if not passed:
+                self.lives -= 1
+                self.signal_hygiene.reset()  # Reset counter after penalty
+                msg = f"Signal hygiene FAILED: -1 life ({msg})"
         else:
             passed, msg = True, "No calibration baseline"
 

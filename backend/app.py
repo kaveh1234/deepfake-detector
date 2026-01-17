@@ -109,11 +109,20 @@ async def handle_control(
 
     elif action == ControlAction.RESET_SESSION.value:
         session = session_manager.reset_session(session_id)
+
+        # Auto-start calibration after reset (same as start_session)
+        session_manager.start_calibration(session_id)
+        session = session_manager.get_session(session_id)  # Get updated session
+
         await send_response(websocket, WSMessageType.SESSION_UPDATE, {
             "session_id": session_id,
             "state": session.state.value,
             "lives": session.lives,
-            "message": "Session reset"
+            "calibrated": False,
+            "current_trap": None,
+            "trap_results": [],
+            "verdict": None,
+            "message": "Session reset - Calibrating"
         })
 
     elif action == ControlAction.START_CALIBRATION.value:
@@ -198,13 +207,23 @@ async def handle_frame(
 
         await send_response(websocket, WSMessageType.METRICS, metrics)
 
-        # Check for calibration complete
+        # Check for calibration complete - send both calibration data AND session update (only once)
         session = session_manager.get_session(session_id)
-        if session and session.state == SessionState.READY and session.calibration:
+        if session and session.state == SessionState.READY and session.calibration and not session.calibration_notified:
+            session.calibration_notified = True  # Mark as sent
+            # Send calibration data
             await send_response(websocket, WSMessageType.CALIBRATION_COMPLETE, {
                 "laplacian_variance": session.calibration.laplacian_variance,
                 "nose_face_ratio": session.calibration.nose_face_ratio,
                 "edge_count": session.calibration.edge_count,
+            })
+            # Also send session update so frontend knows state changed to 'ready'
+            await send_response(websocket, WSMessageType.SESSION_UPDATE, {
+                "session_id": session_id,
+                "state": session.state.value,
+                "lives": session.lives,
+                "calibrated": True,
+                "message": "Calibration complete - ready for traps"
             })
 
 
@@ -232,7 +251,7 @@ async def handle_evaluate_trap(websocket: WebSocket, session_id: str):
 
     result = session_manager.evaluate_trap(session_id)
     if result:
-        await send_response(websocket, WSMessageType.TRAP_RESULT, {
+        response_data = {
             "trap_type": result.trap_type.value,
             "status": result.status.value,
             "score": result.score,
@@ -240,7 +259,11 @@ async def handle_evaluate_trap(websocket: WebSocket, session_id: str):
             "threshold": result.threshold,
             "penalty": result.penalty,
             "message": result.message,
-        })
+        }
+        # Include edge map for squint trap
+        if result.edge_map_b64:
+            response_data["edge_map_b64"] = result.edge_map_b64
+        await send_response(websocket, WSMessageType.TRAP_RESULT, response_data)
 
         # Send session update
         session_info = session_manager.get_session_info(session_id)

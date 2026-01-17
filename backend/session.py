@@ -49,13 +49,20 @@ class Session:
     # Current disco phase
     disco_phase: Optional[DiscoPhase] = None
 
+    # Trap locking - prevent double-run
+    trap_locked: bool = False
+    completed_traps: list[TrapType] = field(default_factory=list)
+
+    # Flag to track if calibration_complete was sent
+    calibration_notified: bool = False
+
 
 class SessionManager:
     """Manages detection sessions and coordinates processing."""
 
-    CALIBRATION_DURATION = 0.3  # seconds (Insta-snap)
-    TRAP_DURATION = 1.5  # seconds per trap (Ultra fast)
-    DISCO_PHASE_DURATION = 0.2  # seconds per color (Strobe)
+    CALIBRATION_DURATION = 2.0  # seconds (PRD spec)
+    TRAP_DURATION = 3.0  # seconds per trap
+    DISCO_PHASE_DURATION = 0.5  # seconds per color phase
 
     # Quality gate thresholds
     MIN_WIDTH = 1280
@@ -162,8 +169,16 @@ class SessionManager:
             self._process_trap_frame(session, runner, roi_data, frame)
 
         # Always compute signal hygiene metrics
-        variance, _, _ = runner.run_signal_hygiene(roi_data)
+        variance, passed, msg = runner.run_signal_hygiene(roi_data)
         session.metrics.laplacian_variance = variance
+
+        # Apply signal hygiene penalty if failed (10 consecutive smooth frames)
+        if not passed and session.state != SessionState.CALIBRATING:
+            # Penalty already applied in runner, sync lives
+            session.lives = runner.lives
+            if runner.lives <= 0:
+                session.state = SessionState.COMPLETED
+                session.verdict = "LIKELY_FAKE"
 
         if roi_data.face_width > 0:
             session.metrics.nose_face_ratio = roi_data.nose_width / roi_data.face_width
@@ -246,6 +261,14 @@ class SessionManager:
         if session.state not in [SessionState.READY, SessionState.RUNNING_TRAP]:
             return False
 
+        # Double-run protection: check if trap is locked or already completed
+        if session.trap_locked:
+            return False
+        if trap_type in session.completed_traps:
+            return False
+
+        # Lock the trap
+        session.trap_locked = True
         session.state = SessionState.RUNNING_TRAP
         session.current_trap = trap_type
         session.trap_start = time.time()
@@ -294,6 +317,10 @@ class SessionManager:
         if result:
             session.trap_results.append(result)
             session.lives = runner.lives
+
+            # Mark trap as completed and unlock
+            session.completed_traps.append(session.current_trap)
+            session.trap_locked = False
 
             # Check for completion
             if runner.lives <= 0:
