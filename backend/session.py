@@ -53,9 +53,9 @@ class Session:
 class SessionManager:
     """Manages detection sessions and coordinates processing."""
 
-    CALIBRATION_DURATION = 2.0  # seconds
-    TRAP_DURATION = 5.0  # seconds per trap
-    DISCO_PHASE_DURATION = 1.0  # seconds per color
+    CALIBRATION_DURATION = 0.6  # seconds (Fast snapshot)
+    TRAP_DURATION = 3.0  # seconds per trap (Fast paced)
+    DISCO_PHASE_DURATION = 0.4  # seconds per color (Rapid fire)
 
     # Quality gate thresholds
     MIN_WIDTH = 1280

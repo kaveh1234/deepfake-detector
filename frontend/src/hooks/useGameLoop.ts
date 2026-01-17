@@ -48,6 +48,14 @@ export function useGameLoop() {
         return () => clearInterval(intervalId);
     }, [camera, ws, camera.isStreaming, ws.connected, sessionState]);
 
+    // Auto-start session when camera is ready and connected
+    useEffect(() => {
+        if (ws.connected && camera.isStreaming && !ws.sessionId) {
+            console.log("Auto-starting session...");
+            ws.control('start_session');
+        }
+    }, [ws.connected, camera.isStreaming, ws.sessionId, ws]);
+
     const startSession = () => {
         ws.control('start_session');
     };

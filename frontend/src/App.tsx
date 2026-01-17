@@ -77,6 +77,7 @@ function App() {
               trapStatus={trapStatus}
               metrics={metrics}
               onStartTrap={() => {}} 
+              sessionState={game.sessionInfo?.state}
            />
         </div>
       </main>

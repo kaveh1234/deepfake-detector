@@ -95,11 +95,15 @@ async def handle_control(
     if action == ControlAction.START_SESSION.value:
         session = session_manager.create_session()
         session_id = session.session_id
+
+        # Auto-start calibration immediately
+        session_manager.start_calibration(session_id)
+
         await send_response(websocket, WSMessageType.SESSION_UPDATE, {
             "session_id": session_id,
             "state": session.state.value,
             "lives": session.lives,
-            "message": "Session started"
+            "message": "Session started - Calibrating"
         })
         return session_id
 

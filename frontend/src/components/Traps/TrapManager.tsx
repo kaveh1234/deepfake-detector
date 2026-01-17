@@ -8,9 +8,26 @@ interface TrapManagerProps {
     trapStatus: 'pending' | 'running' | 'passed' | 'failed';
     metrics: Metrics | null;
     onStartTrap: (trap: TrapType) => void;
+    sessionState?: string;
 }
 
-export default function TrapManager({ currentTrap, trapStatus, metrics }: TrapManagerProps) {
+export default function TrapManager({ currentTrap, trapStatus, metrics, sessionState }: TrapManagerProps) {
+    if (sessionState === 'calibrating') {
+        return (
+            <div className="trap-manager-container">
+                <div className="trap-card active">
+                    <h3 className="trap-title">Calibrating...</h3>
+                    <p className="trap-instructions">
+                        Please look directly at the camera and hold still.
+                    </p>
+                    <div className="animate-pulse text-xs text-blue-400 mt-2">
+                        Acquiring baseline metrics...
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     if (!currentTrap) return (
         <div className="trap-manager-waiting">
             Waiting for session start...
